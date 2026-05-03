@@ -1,0 +1,539 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Buku Tamu Digital – Ditjen PSDKP</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@700&display=swap');
+
+    :root {
+      --navy:   #0a2647;
+      --teal:   #1b6ca8;
+      --gold:   #c9a84c;
+      --light:  #f0f6fc;
+      --white:  #ffffff;
+      --gray:   #6b7280;
+      --border: #d1d9e0;
+      --danger: #dc2626;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: linear-gradient(135deg, #0a2647 0%, #1b6ca8 100%);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    .card {
+      background: var(--white);
+      border-radius: 20px;
+      width: 100%;
+      max-width: 680px;
+      box-shadow: 0 24px 64px rgba(0,0,0,0.35);
+      overflow: hidden;
+    }
+
+    /* ── HEADER ── */
+    .header {
+      background: linear-gradient(135deg, #0a2647 0%, #1b4f8a 100%);
+      padding: 32px 40px 28px;
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      position: relative;
+    }
+    .header::after {
+      content: '';
+      position: absolute;
+      bottom: 0; left: 0; right: 0;
+      height: 4px;
+      background: linear-gradient(90deg, var(--gold), #e8c97a, var(--gold));
+    }
+    .logo-wrap {
+      width: 72px; height: 72px;
+      background: var(--white);
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.25);
+      overflow: hidden;
+    }
+    .logo-wrap img { width: 60px; height: 60px; object-fit: contain; }
+    .logo-placeholder {
+      font-size: 28px; line-height: 1;
+    }
+    .header-text h1 {
+      font-family: 'Playfair Display', serif;
+      color: var(--white);
+      font-size: 18px;
+      line-height: 1.35;
+    }
+    .header-text p {
+      color: rgba(255,255,255,0.7);
+      font-size: 12px;
+      margin-top: 4px;
+    }
+    .date-badge {
+      margin-left: auto;
+      background: rgba(255,255,255,0.12);
+      border: 1px solid rgba(255,255,255,0.2);
+      border-radius: 10px;
+      padding: 8px 14px;
+      text-align: center;
+      flex-shrink: 0;
+    }
+    .date-badge .day { color: var(--gold); font-size: 24px; font-weight: 700; }
+    .date-badge .mon { color: var(--white); font-size: 11px; }
+
+    /* ── FORM AREA ── */
+    .form-wrap { padding: 32px 40px; }
+
+    .section-label {
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: .08em;
+      color: var(--teal);
+      margin-bottom: 18px;
+    }
+
+    .field-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin-bottom: 16px;
+    }
+    .field-full { grid-column: 1 / -1; }
+
+    label {
+      display: block;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--navy);
+      margin-bottom: 6px;
+    }
+    label span { color: var(--danger); }
+
+    input, select, textarea {
+      width: 100%;
+      border: 1.5px solid var(--border);
+      border-radius: 10px;
+      padding: 10px 14px;
+      font-size: 14px;
+      font-family: inherit;
+      color: #1a1a2e;
+      background: var(--light);
+      transition: border .2s, box-shadow .2s;
+      outline: none;
+    }
+    input:focus, select:focus, textarea:focus {
+      border-color: var(--teal);
+      box-shadow: 0 0 0 3px rgba(27,108,168,.15);
+      background: var(--white);
+    }
+    textarea { resize: vertical; min-height: 72px; }
+
+    /* ── SIGNATURE ── */
+    .sig-section { margin-top: 20px; }
+    .sig-header {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 10px;
+    }
+    .sig-container {
+      border: 2px dashed var(--border);
+      border-radius: 12px;
+      background: #fafbff;
+      cursor: crosshair;
+      position: relative;
+      overflow: hidden;
+    }
+    .sig-container canvas { display: block; touch-action: none; }
+    .sig-hint {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      color: #bbb;
+      font-size: 13px;
+      pointer-events: none;
+      transition: opacity .2s;
+      gap: 6px;
+    }
+    .sig-hint svg { opacity: .4; }
+    .sig-hint.hidden { opacity: 0; }
+
+    .sig-baseline {
+      position: absolute;
+      bottom: 40px; left: 30px; right: 30px;
+      height: 1px; background: #e2e8f0;
+      pointer-events: none;
+    }
+    .sig-clear-btn {
+      font-size: 12px; font-weight: 500;
+      background: none; border: 1px solid var(--border);
+      border-radius: 6px; padding: 4px 12px;
+      cursor: pointer; color: var(--gray);
+      transition: all .15s;
+    }
+    .sig-clear-btn:hover { border-color: var(--danger); color: var(--danger); }
+
+    /* ── SUBMIT ── */
+    .submit-btn {
+      margin-top: 28px;
+      width: 100%;
+      padding: 15px;
+      background: linear-gradient(135deg, #0a2647, #1b6ca8);
+      color: var(--white);
+      border: none;
+      border-radius: 12px;
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+      letter-spacing: .03em;
+      transition: opacity .2s, transform .15s;
+      position: relative;
+      overflow: hidden;
+    }
+    .submit-btn:hover { opacity: .92; transform: translateY(-1px); }
+    .submit-btn:disabled { opacity: .6; cursor: not-allowed; transform: none; }
+    .submit-btn .spinner {
+      display: none;
+      width: 18px; height: 18px;
+      border: 2px solid rgba(255,255,255,.4);
+      border-top-color: #fff;
+      border-radius: 50%;
+      animation: spin .7s linear infinite;
+      margin: 0 auto;
+    }
+    .submit-btn.loading .btn-text { display: none; }
+    .submit-btn.loading .spinner { display: block; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ── SUCCESS ── */
+    .success-panel {
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 60px 40px;
+      text-align: center;
+      gap: 14px;
+    }
+    .success-panel.show { display: flex; }
+    .check-circle {
+      width: 80px; height: 80px;
+      background: linear-gradient(135deg,#10b981,#059669);
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 40px;
+    }
+    .success-panel h2 { color: var(--navy); font-size: 22px; }
+    .success-panel p { color: var(--gray); font-size: 14px; }
+    .new-entry-btn {
+      margin-top: 8px;
+      padding: 12px 28px;
+      background: linear-gradient(135deg, #0a2647, #1b6ca8);
+      color: var(--white);
+      border: none;
+      border-radius: 10px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    /* ── ERROR TOAST ── */
+    .toast {
+      position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%);
+      background: var(--danger); color: #fff;
+      padding: 12px 24px; border-radius: 10px;
+      font-size: 14px; font-weight: 500;
+      display: none; z-index: 9999;
+      box-shadow: 0 6px 20px rgba(0,0,0,.2);
+    }
+    .toast.show { display: block; animation: fadeIn .3s; }
+    @keyframes fadeIn { from { opacity:0; transform: translateX(-50%) translateY(10px); } }
+
+    /* ── FOOTER ── */
+    .footer {
+      background: var(--light);
+      border-top: 1px solid var(--border);
+      padding: 12px 40px;
+      font-size: 11px;
+      color: var(--gray);
+      display: flex; align-items: center; justify-content: space-between;
+    }
+
+    @media (max-width: 520px) {
+      .header { padding: 24px 20px; flex-wrap: wrap; }
+      .form-wrap { padding: 24px 20px; }
+      .field-grid { grid-template-columns: 1fr; }
+      .date-badge { display: none; }
+      .footer { flex-direction: column; gap: 4px; text-align: center; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="card">
+  <!-- HEADER -->
+  <div class="header">
+    <div class="logo-wrap">
+      <!-- Replace src with actual KKP/PSDKP logo path -->
+      <span class="logo-placeholder">🐟</span>
+    </div>
+    <div class="header-text">
+      <h1>Buku Tamu Digital<br>Direktorat Pengendalian Operasi Armada</h1>
+      <p>Ditjen PSDKP – Gedung Mina Bahari 4, Lantai 12<br>Kementerian Kelautan dan Perikanan</p>
+    </div>
+    <div class="date-badge">
+      <div class="day" id="day-num">--</div>
+      <div class="mon" id="mon-txt">---</div>
+    </div>
+  </div>
+
+  <!-- FORM -->
+  <div class="form-wrap" id="formSection">
+    <div class="section-label">📋 Data Pengunjung</div>
+
+    <form id="guestForm" novalidate>
+      <div class="field-grid">
+        <div>
+          <label for="name">Nama Lengkap <span>*</span></label>
+          <input type="text" id="name" placeholder="Masukkan nama lengkap" required />
+        </div>
+        <div>
+          <label for="nip">NIP / No. Identitas</label>
+          <input type="text" id="nip" placeholder="NIP / NIK / No. Anggota" />
+        </div>
+        <div>
+          <label for="institution">Instansi / Organisasi <span>*</span></label>
+          <input type="text" id="institution" placeholder="Nama instansi/organisasi" required />
+        </div>
+        <div>
+          <label for="position">Jabatan</label>
+          <input type="text" id="position" placeholder="Jabatan / posisi" />
+        </div>
+        <div>
+          <label for="phone">No. Telepon <span>*</span></label>
+          <input type="tel" id="phone" placeholder="08xxxxxxxxxx" required />
+        </div>
+        <div>
+          <label for="email">Email</label>
+          <input type="email" id="email" placeholder="nama@instansi.go.id" />
+        </div>
+        <div class="field-full">
+          <label for="purpose">Keperluan / Tujuan Kunjungan <span>*</span></label>
+          <select id="purpose" required>
+            <option value="">-- Pilih Keperluan --</option>
+            <option value="Rapat / Koordinasi">Rapat / Koordinasi</option>
+            <option value="Audiensi">Audiensi</option>
+            <option value="Pengambilan Dokumen">Pengambilan Dokumen</option>
+            <option value="Kunjungan Kerja">Kunjungan Kerja</option>
+            <option value="Pelatihan / Sosialisasi">Pelatihan / Sosialisasi</option>
+            <option value="Lain-lain">Lain-lain</option>
+          </select>
+        </div>
+        <div class="field-full">
+          <label for="host">Menemui <span>*</span></label>
+          <input type="text" id="host" placeholder="Nama pejabat/staf yang dituju" required />
+        </div>
+        <div class="field-full">
+          <label for="notes">Keterangan Tambahan</label>
+          <textarea id="notes" placeholder="Informasi tambahan (opsional)"></textarea>
+        </div>
+      </div>
+
+      <!-- SIGNATURE -->
+      <div class="sig-section">
+        <div class="sig-header">
+          <label style="margin-bottom:0">Tanda Tangan <span>*</span></label>
+          <button type="button" class="sig-clear-btn" onclick="clearSig()">✕ Hapus</button>
+        </div>
+        <div class="sig-container" id="sigContainer">
+          <canvas id="sigCanvas" height="160"></canvas>
+          <div class="sig-baseline"></div>
+          <div class="sig-hint" id="sigHint">
+            <svg width="32" height="32" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+              <path d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L6.832 19.82a4.5 4.5 0 01-1.897 1.13l-2.685.8.8-2.685a4.5 4.5 0 011.13-1.897L16.863 4.487z"/>
+            </svg>
+            Tandatangani di sini
+          </div>
+        </div>
+      </div>
+
+      <button type="submit" class="submit-btn" id="submitBtn">
+        <span class="btn-text">✅ Daftarkan Kunjungan</span>
+        <div class="spinner"></div>
+      </button>
+    </form>
+  </div>
+
+  <!-- SUCCESS -->
+  <div class="success-panel" id="successPanel">
+    <div class="check-circle">✓</div>
+    <h2>Kunjungan Tercatat!</h2>
+    <p id="successMsg">Terima kasih telah mengisi buku tamu digital.<br>Data Anda telah berhasil disimpan.</p>
+    <p style="font-size:12px;color:#9ca3af;" id="ticketNo"></p>
+    <button class="new-entry-btn" onclick="resetForm()">+ Tamu Berikutnya</button>
+  </div>
+
+  <div class="footer">
+    <span>Direktorat Pengendalian Operasi Armada – Ditjen PSDKP</span>
+    <span id="clockEl">--:--:--</span>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ─── CONFIG ───────────────────────────────────────────────────────────────
+// Ganti dengan URL deployment Apps Script Web App Anda
+const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzVPbewkHpPBoIuYcNFf6ijLcyQhN-WNXfT0Y00CmnbFHHQCDniZk76jw1SHyAIjPv26g/exec';
+
+// ─── DATE / CLOCK ─────────────────────────────────────────────────────────
+const MONTHS_ID = ['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'];
+
+function updateDateTime() {
+  const now = new Date();
+  document.getElementById('day-num').textContent = now.getDate();
+  document.getElementById('mon-txt').textContent =
+    MONTHS_ID[now.getMonth()] + ' ' + now.getFullYear();
+  document.getElementById('clockEl').textContent =
+    now.toLocaleTimeString('id-ID');
+}
+updateDateTime();
+setInterval(updateDateTime, 1000);
+
+// ─── SIGNATURE ────────────────────────────────────────────────────────────
+const canvas   = document.getElementById('sigCanvas');
+const ctx      = canvas.getContext('2d');
+const sigHint  = document.getElementById('sigHint');
+const container = document.getElementById('sigContainer');
+let drawing = false, hasSig = false;
+
+function resizeCanvas() {
+  const ratio = window.devicePixelRatio || 1;
+  const w = container.offsetWidth;
+  canvas.width  = w * ratio;
+  canvas.height = 160 * ratio;
+  canvas.style.width  = w + 'px';
+  canvas.style.height = '160px';
+  ctx.scale(ratio, ratio);
+  ctx.strokeStyle = '#1a1a2e';
+  ctx.lineWidth   = 2.2;
+  ctx.lineCap     = 'round';
+  ctx.lineJoin    = 'round';
+}
+resizeCanvas();
+window.addEventListener('resize', resizeCanvas);
+
+function getPos(e) {
+  const r = canvas.getBoundingClientRect();
+  if (e.touches) {
+    return { x: e.touches[0].clientX - r.left, y: e.touches[0].clientY - r.top };
+  }
+  return { x: e.clientX - r.left, y: e.clientY - r.top };
+}
+
+canvas.addEventListener('mousedown',  e => { drawing = true; const p = getPos(e); ctx.beginPath(); ctx.moveTo(p.x, p.y); });
+canvas.addEventListener('mousemove',  e => { if(!drawing) return; const p = getPos(e); ctx.lineTo(p.x, p.y); ctx.stroke(); hasSig = true; sigHint.classList.add('hidden'); });
+canvas.addEventListener('mouseup',    () => drawing = false);
+canvas.addEventListener('mouseleave', () => drawing = false);
+
+canvas.addEventListener('touchstart', e => { e.preventDefault(); drawing = true; const p = getPos(e); ctx.beginPath(); ctx.moveTo(p.x, p.y); }, { passive: false });
+canvas.addEventListener('touchmove',  e => { e.preventDefault(); if(!drawing) return; const p = getPos(e); ctx.lineTo(p.x, p.y); ctx.stroke(); hasSig = true; sigHint.classList.add('hidden'); }, { passive: false });
+canvas.addEventListener('touchend',   () => drawing = false);
+
+function clearSig() {
+  const ratio = window.devicePixelRatio || 1;
+  ctx.clearRect(0, 0, canvas.width / ratio, canvas.height / ratio);
+  hasSig = false;
+  sigHint.classList.remove('hidden');
+}
+
+function getSigDataURL() {
+  return canvas.toDataURL('image/png');
+}
+
+// ─── TOAST ────────────────────────────────────────────────────────────────
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 3500);
+}
+
+// ─── FORM SUBMIT ──────────────────────────────────────────────────────────
+document.getElementById('guestForm').addEventListener('submit', async function(e) {
+  e.preventDefault();
+
+  const name        = document.getElementById('name').value.trim();
+  const nip         = document.getElementById('nip').value.trim();
+  const institution = document.getElementById('institution').value.trim();
+  const position    = document.getElementById('position').value.trim();
+  const phone       = document.getElementById('phone').value.trim();
+  const email       = document.getElementById('email').value.trim();
+  const purpose     = document.getElementById('purpose').value;
+  const host        = document.getElementById('host').value.trim();
+  const notes       = document.getElementById('notes').value.trim();
+
+  if (!name)        { showToast('⚠️ Nama lengkap wajib diisi.'); return; }
+  if (!institution) { showToast('⚠️ Instansi wajib diisi.'); return; }
+  if (!phone)       { showToast('⚠️ Nomor telepon wajib diisi.'); return; }
+  if (!purpose)     { showToast('⚠️ Pilih keperluan kunjungan.'); return; }
+  if (!host)        { showToast('⚠️ Nama yang dituju wajib diisi.'); return; }
+  if (!hasSig)      { showToast('⚠️ Tanda tangan belum diisi.'); return; }
+
+  const btn = document.getElementById('submitBtn');
+  btn.disabled = true;
+  btn.classList.add('loading');
+
+  const timestamp = new Date().toLocaleString('id-ID', { timeZone: 'Asia/Jakarta' });
+  const ticketNo  = 'TM-' + Date.now().toString(36).toUpperCase();
+  const sigData   = getSigDataURL();
+
+  const payload = { name, nip, institution, position, phone, email, purpose, host, notes, timestamp, ticketNo, signature: sigData };
+
+  try {
+    const res = await fetch(APPS_SCRIPT_URL, {
+      method: 'POST',
+      body:   JSON.stringify(payload),
+    });
+    const data = await res.json();
+
+    if (data.status === 'success') {
+      document.getElementById('formSection').style.display   = 'none';
+      document.getElementById('successPanel').classList.add('show');
+      document.getElementById('successMsg').innerHTML =
+        `Terima kasih, <strong>${name}</strong>!<br>Data kunjungan Anda telah berhasil disimpan.`;
+      document.getElementById('ticketNo').textContent = 'No. Kunjungan: ' + ticketNo;
+    } else {
+      showToast('❌ Gagal menyimpan data. Coba lagi.');
+    }
+  } catch (err) {
+    console.error(err);
+    showToast('❌ Koneksi gagal. Periksa URL Apps Script.');
+  } finally {
+    btn.disabled = false;
+    btn.classList.remove('loading');
+  }
+});
+
+// ─── RESET ────────────────────────────────────────────────────────────────
+function resetForm() {
+  document.getElementById('guestForm').reset();
+  clearSig();
+  document.getElementById('formSection').style.display = '';
+  document.getElementById('successPanel').classList.remove('show');
+}
+</script>
+</body>
+</html>
